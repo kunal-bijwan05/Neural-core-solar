@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>NEURAL//CORE — Solar System Explorer</title>
+    <meta name="description" content="An interactive 3D journey through our solar system.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- WebGL Fallback -->
+    <div id="webgl-fallback" style="display:none;">
+        <div class="fallback-inner">
+            <h2>NEURAL//CORE</h2>
+            <p>Your browser does not support WebGL. Please use a modern browser to experience this site.</p>
+        </div>
+    </div>
+
+    <!-- ========== BOOT SEQUENCE OVERLAY ========== -->
+    <div id="boot-overlay">
+        <div class="boot-container">
+            <div class="boot-logo">NEURAL<span class="accent">//</span>CORE</div>
+            <div class="boot-line">INITIALIZING SOLAR ATLAS...</div>
+            <div class="boot-log" id="bootLog">
+                <div class="boot-log-line" data-delay="400">
+                    <span class="log-key">STAR FIELD</span>
+                    <span class="log-val offline" id="log-nn">OFFLINE</span>
+                </div>
+                <div class="boot-log-line" data-delay="900">
+                    <span class="log-key">PLANETARY CORES</span>
+                    <span class="log-val standby" id="log-core">STANDBY</span>
+                </div>
+                <div class="boot-log-line" data-delay="1400">
+                    <span class="log-key">ORBITAL ENGINE</span>
+                    <span class="log-val booting" id="log-sys">BOOTING</span>
+                </div>
+                <div class="boot-log-line" data-delay="2200">
+                    <span class="log-key">ASTEROID BELT</span>
+                    <span class="log-val" id="log-pe">—</span>
+                </div>
+                <div class="boot-log-line" data-delay="2700">
+                    <span class="log-key">RENDERER</span>
+                    <span class="log-val" id="log-rend">—</span>
+                </div>
+            </div>
+            <div class="boot-status" id="bootStatus"></div>
+            <div class="boot-progress-bar"><div class="boot-progress-fill" id="bootProgress"></div></div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN 3D CANVAS ========== -->
+    <canvas id="neural-canvas"></canvas>
+
+    <!-- ========== HUD OVERLAY ========== -->
+    <div id="hud-overlay" class="hud-hidden">
+        <div class="hud-tl">
+            <div class="hud-logo">NEURAL<span class="accent">//</span>CORE</div>
+            <div class="hud-sub">SOLAR ATLAS v2.4</div>
+        </div>
+        <div class="hud-tr">
+            <span class="hud-status-dot"></span>
+            <span class="hud-status-text" id="hudStatusText">SYSTEM ONLINE</span>
+        </div>
+        <div class="hud-bl">
+            <div class="hud-metric">PLANETS: <span id="hudNode">08</span></div>
+            <div class="hud-metric">ORBIT SYNC: <span id="hudSync">99.7%</span></div>
+            <div class="hud-metric" id="hudSectionLabel">SECTOR: SOL</div>
+        </div>
+        <div class="hud-br">
+            <span class="hud-scroll-hint" id="scrollHint">▼ SCROLL TO EXPLORE</span>
+        </div>
+        <div class="hud-corner tl"></div>
+        <div class="hud-corner tr"></div>
+        <div class="hud-corner bl"></div>
+        <div class="hud-corner br"></div>
+    </div>
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav id="main-nav" class="nav-hidden">
+        <ul>
+            <li><a href="#" class="nav-item active" data-section="0">INNER</a></li>
+            <li><a href="#" class="nav-item" data-section="1">BELT</a></li>
+            <li><a href="#" class="nav-item" data-section="2">OUTER</a></li>
+            <li><a href="#" class="nav-item" data-section="3">DEEP</a></li>
+        </ul>
+        <div class="nav-indicator" id="navIndicator"></div>
+    </nav>
+
+    <!-- ========== SECTION TEXT OVERLAYS ========== -->
+    <div id="sections-wrapper">
+
+        <!-- HERO -->
+        <div class="section-overlay" id="sec-hero">
+            <div class="sec-content hero-content">
+                <div class="hero-eyebrow">NEURAL//CORE · SOLAR ATLAS</div>
+                <h1 class="hero-title">
+                    <span class="line">OUR</span>
+                    <span class="line accent-line">SOLAR</span>
+                    <span class="line">SYSTEM</span>
+                </h1>
+                <p class="hero-sub">Eight worlds. One star. Infinite discovery.</p>
+                <button class="btn-enter" id="enterBtn">
+                    <span class="btn-text">ENTER THE SYSTEM</span>
+                    <span class="btn-glow"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SECTION 01: INNER PLANETS -->
+        <div class="section-overlay sec-right" id="sec-01">
+            <div class="sec-content">
+                <div class="sec-num">01 · INNER WORLDS</div>
+                <h2 class="sec-title">MERCURY<br>TO MARS</h2>
+                <p class="sec-body">Rocky. Scorched. Ancient. The terrestrial planets forged closest to the Sun.</p>
+                <div class="sec-line"></div>
+            </div>
+        </div>
+
+        <!-- SECTION 02: ASTEROID BELT -->
+        <div class="section-overlay sec-left" id="sec-02">
+            <div class="sec-content">
+                <div class="sec-num">02 · ASTEROID BELT</div>
+                <h2 class="sec-title">THE<br>BELT</h2>
+                <p class="sec-body">Millions of ancient rock fragments caught between the inner and outer worlds.</p>
+                <div class="sec-line"></div>
+            </div>
+        </div>
+
+        <!-- SECTION 03: OUTER PLANETS -->
+        <div class="section-overlay sec-right" id="sec-03">
+            <div class="sec-content">
+                <div class="sec-num">03 · GAS GIANTS</div>
+                <h2 class="sec-title">JUPITER<br>& SATURN</h2>
+                <p class="sec-body">Titanic worlds of swirling gas, storm systems, and stunning ring structures.</p>
+                <div class="sec-line"></div>
+            </div>
+        </div>
+
+        <!-- SECTION 04: INTERACTIVE -->
+        <div class="section-overlay sec-center" id="sec-04">
+            <div class="sec-content center">
+                <div class="sec-num">04 · EXPLORATION</div>
+                <h2 class="sec-title">INSPECT<br>ANY PLANET</h2>
+                <p class="sec-body">Hover or click any world to view mission data.</p>
+            </div>
+        </div>
+
+        <!-- SECTION 05: OUTER ICE GIANTS -->
+        <div class="section-overlay sec-center" id="sec-05">
+            <div class="overload-hud">
+                <div class="overload-metric"><span>SUN DISTANCE:</span><span class="val" id="ovPower">2.8 BN KM</span></div>
+                <div class="overload-metric"><span>ORBIT PERIOD:</span><span class="val" id="ovLoad">164 YEARS</span></div>
+                <div class="overload-metric"><span>SYSTEM SYNC:</span><span class="val" id="ovSync">99%</span></div>
+            </div>
+            <div class="overload-warning" id="overloadWarning">
+                <span class="warn-icon">✦</span>
+                <span class="warn-text">ICE GIANT SECTOR</span>
+            </div>
+        </div>
+
+        <!-- SECTION 06: DEEP SPACE -->
+        <div class="section-overlay sec-center" id="sec-06">
+            <div class="sec-content center evolution-content">
+                <h2 class="evolution-title">SOLAR<br><span class="accent">COMPLETE.</span></h2>
+                <p class="evolution-sub">One star. Eight planets.<br>Countless moons.<br>Our corner of the cosmos.</p>
+                <button class="btn-restart" id="restartBtn">
+                    <span>RESTART JOURNEY</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========== OBJECT INSPECT PANEL ========== -->
+    <div id="inspect-panel" class="panel-hidden">
+        <div class="panel-header">
+            <span class="panel-tag" id="panelTag">PLANET</span>
+            <button class="panel-close" id="panelClose">✕</button>
+        </div>
+        <h3 class="panel-title" id="panelTitle">EARTH</h3>
+        <p class="panel-desc" id="panelDesc">Description here.</p>
+        <div class="panel-stats" id="panelStats"></div>
+        <div class="panel-glow"></div>
+    </div>
+
+    <!-- ========== SUN APPROACH OVERLAY ========== -->
+    <div id="sun-overlay"></div>
+    <div id="sun-text">
+        <h2>INTO<br>THE STAR</h2>
+        <p>SURFACE TEMP: 5,500°C · CORE: 15M°C</p>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <div id="site-footer">
+        <span>NEURAL//CORE</span>
+        <span class="footer-dot"></span>
+        <span>SYSTEM STATUS: <span class="accent">ONLINE</span></span>
+        <span class="footer-dot"></span>
+        <span>TECHFEST 2026</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
